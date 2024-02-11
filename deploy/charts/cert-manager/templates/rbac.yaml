@@ -48,7 +48,7 @@ subjects:
 
 # Issuer controller role
 apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
+kind: {{ .Values.global.rbac.namespaced | ternary "Role" "ClusterRole" }}
 metadata:
   name: {{ template "cert-manager.fullname" . }}-controller-issuers
   labels:
@@ -72,6 +72,7 @@ rules:
     verbs: ["create", "patch"]
 ---
 
+{{- if (not .Values.global.rbac.namespaced) }}
 # ClusterIssuer controller role
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -98,10 +99,11 @@ rules:
     verbs: ["create", "patch"]
 
 ---
+{{- end }}
 
 # Certificates controller role
 apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
+kind: {{ .Values.global.rbac.namespaced | ternary "Role" "ClusterRole" }}
 metadata:
   name: {{ template "cert-manager.fullname" . }}-controller-certificates
   labels:
@@ -137,7 +139,7 @@ rules:
 
 # Orders controller role
 apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
+kind: {{ .Values.global.rbac.namespaced | ternary "Role" "ClusterRole" }}
 metadata:
   name: {{ template "cert-manager.fullname" . }}-controller-orders
   labels:
@@ -176,7 +178,7 @@ rules:
 
 # Challenges controller role
 apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
+kind: {{ .Values.global.rbac.namespaced | ternary "Role" "ClusterRole" }}
 metadata:
   name: {{ template "cert-manager.fullname" . }}-controller-challenges
   labels:
@@ -237,7 +239,7 @@ rules:
 
 # ingress-shim controller role
 apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
+kind: {{ .Values.global.rbac.namespaced | ternary "Role" "ClusterRole" }}
 metadata:
   name: {{ template "cert-manager.fullname" . }}-controller-ingress-shim
   labels:
@@ -275,7 +277,7 @@ rules:
 ---
 
 apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
+kind: {{ .Values.global.rbac.namespaced | ternary "RoleBinding" "ClusterRoleBinding" }}
 metadata:
   name: {{ template "cert-manager.fullname" . }}-controller-issuers
   labels:
@@ -286,7 +288,7 @@ metadata:
     {{- include "labels" . | nindent 4 }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
+  kind: {{ .Values.global.rbac.namespaced | ternary "Role" "ClusterRole" }}
   name: {{ template "cert-manager.fullname" . }}-controller-issuers
 subjects:
   - name: {{ template "cert-manager.serviceAccountName" . }}
@@ -294,7 +296,7 @@ subjects:
     kind: ServiceAccount
 
 ---
-
+{{- if not .Values.global.rbac.namespaced }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
@@ -313,11 +315,11 @@ subjects:
   - name: {{ template "cert-manager.serviceAccountName" . }}
     namespace: {{ include "cert-manager.namespace" . }}
     kind: ServiceAccount
-
+{{- end }}
 ---
 
 apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
+kind: {{ .Values.global.rbac.namespaced | ternary "RoleBinding" "ClusterRoleBinding" }}
 metadata:
   name: {{ template "cert-manager.fullname" . }}-controller-certificates
   labels:
@@ -328,7 +330,7 @@ metadata:
     {{- include "labels" . | nindent 4 }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
+  kind: {{ .Values.global.rbac.namespaced | ternary "Role" "ClusterRole" }}
   name: {{ template "cert-manager.fullname" . }}-controller-certificates
 subjects:
   - name: {{ template "cert-manager.serviceAccountName" . }}
@@ -338,7 +340,7 @@ subjects:
 ---
 
 apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
+kind: {{ .Values.global.rbac.namespaced | ternary "RoleBinding" "ClusterRoleBinding" }}
 metadata:
   name: {{ template "cert-manager.fullname" . }}-controller-orders
   labels:
@@ -349,7 +351,7 @@ metadata:
     {{- include "labels" . | nindent 4 }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
+  kind: {{ .Values.global.rbac.namespaced | ternary "Role" "ClusterRole" }}
   name: {{ template "cert-manager.fullname" . }}-controller-orders
 subjects:
   - name: {{ template "cert-manager.serviceAccountName" . }}
@@ -359,7 +361,7 @@ subjects:
 ---
 
 apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
+kind: {{ .Values.global.rbac.namespaced | ternary "RoleBinding" "ClusterRoleBinding" }}
 metadata:
   name: {{ template "cert-manager.fullname" . }}-controller-challenges
   labels:
@@ -370,7 +372,7 @@ metadata:
     {{- include "labels" . | nindent 4 }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
+  kind: {{ .Values.global.rbac.namespaced | ternary "Role" "ClusterRole" }}
   name: {{ template "cert-manager.fullname" . }}-controller-challenges
 subjects:
   - name: {{ template "cert-manager.serviceAccountName" . }}
@@ -380,7 +382,7 @@ subjects:
 ---
 
 apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
+kind: {{ .Values.global.rbac.namespaced | ternary "RoleBinding" "ClusterRoleBinding" }}
 metadata:
   name: {{ template "cert-manager.fullname" . }}-controller-ingress-shim
   labels:
@@ -391,7 +393,7 @@ metadata:
     {{- include "labels" . | nindent 4 }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
+  kind: {{ .Values.global.rbac.namespaced | ternary "Role" "ClusterRole" }}
   name: {{ template "cert-manager.fullname" . }}-controller-ingress-shim
 subjects:
   - name: {{ template "cert-manager.serviceAccountName" . }}
@@ -400,7 +402,6 @@ subjects:
 
 {{- if .Values.global.rbac.aggregateClusterRoles }}
 ---
-
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
@@ -421,7 +422,7 @@ rules:
 ---
 
 apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
+kind: {{ .Values.global.rbac.namespaced | ternary "Role" "ClusterRole" }}
 metadata:
   name: {{ template "cert-manager.fullname" . }}-view
   labels:
@@ -448,7 +449,7 @@ rules:
 ---
 
 apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
+kind: {{ .Values.global.rbac.namespaced | ternary "Role" "ClusterRole" }}
 metadata:
   name: {{ template "cert-manager.fullname" . }}-edit
   labels:
@@ -476,7 +477,7 @@ rules:
 
 # Permission to approve CertificateRequests referencing cert-manager.io Issuers and ClusterIssuers
 apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
+kind: {{ .Values.global.rbac.namespaced | ternary "Role" "ClusterRole" }}
 metadata:
   name: {{ template "cert-manager.fullname" . }}-controller-approve:cert-manager-io
   labels:
@@ -494,7 +495,7 @@ rules:
 ---
 
 apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
+kind: {{ .Values.global.rbac.namespaced | ternary "RoleBinding" "ClusterRoleBinding" }}
 metadata:
   name: {{ template "cert-manager.fullname" . }}-controller-approve:cert-manager-io
   labels:
@@ -505,7 +506,7 @@ metadata:
     {{- include "labels" . | nindent 4 }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
+  kind: {{ .Values.global.rbac.namespaced | ternary "Role" "ClusterRole" }}
   name: {{ template "cert-manager.fullname" . }}-controller-approve:cert-manager-io
 subjects:
   - name: {{ template "cert-manager.serviceAccountName" . }}
@@ -518,7 +519,7 @@ subjects:
 # - Update and sign CertificatSigningeRequests referencing cert-manager.io Issuers and ClusterIssuers
 # - Perform SubjectAccessReviews to test whether users are able to reference Namespaced Issuers
 apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
+kind: {{ .Values.global.rbac.namespaced | ternary "Role" "ClusterRole" }}
 metadata:
   name: {{ template "cert-manager.fullname" . }}-controller-certificatesigningrequests
   labels:
@@ -545,7 +546,7 @@ rules:
 ---
 
 apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
+kind: {{ .Values.global.rbac.namespaced | ternary "RoleBinding" "ClusterRoleBinding" }}
 metadata:
   name: {{ template "cert-manager.fullname" . }}-controller-certificatesigningrequests
   labels:
@@ -556,7 +557,7 @@ metadata:
     {{- include "labels" . | nindent 4 }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
+  kind: {{ .Values.global.rbac.namespaced | ternary "Role" "ClusterRole" }}
   name: {{ template "cert-manager.fullname" . }}-controller-certificatesigningrequests
 subjects:
   - name: {{ template "cert-manager.serviceAccountName" . }}

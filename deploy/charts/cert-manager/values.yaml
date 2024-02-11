@@ -26,6 +26,9 @@ global:
     create: true
     # Aggregate ClusterRoles to Kubernetes default user-facing roles. Ref: https://kubernetes.io/docs/reference/access-authn-authz/rbac/#user-facing-roles
     aggregateClusterRoles: true
+    # If true, create only namespaced RBAC
+    # NOTE: cainjector requires cluster-wide permissions, because Kubernetes WebhookConfiguration is cluster-scoped
+    namespaced: false
 
   podSecurityPolicy:
     enabled: false

@@ -1,5 +1,5 @@
 {{- if .Values.cainjector.enabled }}
-{{- if .Values.global.rbac.create }}
+{{- if and .Values.global.rbac.create (not .Values.global.rbac.namespaced) }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
